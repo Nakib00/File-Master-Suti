@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Master Suite</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- pdf-lib: For merging and creating PDFs -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <!-- pdf.js: For rendering PDF pages to images -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <!-- JSZip (dependency for docx-preview and for zipping images) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- docx-preview: For rendering .docx files as HTML -->
+    <script src="https://unpkg.com/docx-preview@0.1.15/dist/docx-preview.js"></script>
+    <!-- html2pdf.js: For converting HTML content to PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Link to external CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex items-center justify-center min-h-screen p-4 transition-colors duration-300">
+
+    <div class="w-full max-w-4xl bg-white dark:bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl shadow-slate-500/10 dark:shadow-black/30 ring-1 ring-slate-200 dark:ring-slate-700">
+        <!-- Header -->
+        <div class="p-6 md:p-8 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">File Master Suti</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">Your all-in-one tool for file conversion & extraction.</p>
+            </div>
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-800">
+                <svg id="theme-icon-light" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <svg id="theme-icon-dark" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+        </div>
+
+        <div class="p-6 md:p-8">
+            <!-- Tab Controls -->
+            <div class="mb-6">
+                <nav id="tabs" class="flex flex-wrap items-center gap-2" aria-label="Tabs">
+                    <button data-tab="merger" class="tab-btn tab-active px-4 py-2 font-semibold rounded-lg">Merge PDFs</button>
+                    <button data-tab="docx-converter" class="tab-btn px-4 py-2 font-semibold rounded-lg">DOCX to PDF</button>
+                    <button data-tab="image-converter" class="tab-btn px-4 py-2 font-semibold rounded-lg">Image to PDF</button>
+                    <button data-tab="pdf-extractor" class="tab-btn px-4 py-2 font-semibold rounded-lg">PDF to Image</button>
+                </nav>
+            </div>
+
+            <!-- Tab Panels -->
+            <div>
+                <!-- PDF Merger Panel -->
+                <div id="panel-merger" class="tab-panel">
+                    <div class="mb-6">
+                        <label for="merge-file-input" class="file-input-label cursor-pointer w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center bg-slate-50 dark:bg-slate-700/50 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-300">
+                            <svg class="w-12 h-12 text-slate-400 dark:text-slate-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h1.586a1 1 0 01.707.293l1.414 1.414a1 1 0 00.707.293H12a4 4 0 014 4v6m-6 4h6m-6-4v6m0-6H9a1 1 0 00-1 1v5a1 1 0 001 1h2a1 1 0 001-1v-5a1 1 0 00-1-1z"></path></svg>
+                            <p class="font-semibold text-slate-700 dark:text-slate-300">Click to select files or drag and drop</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Select two or more PDF files</p>
+                        </label>
+                        <input type="file" id="merge-file-input" multiple accept=".pdf" class="hidden">
+                    </div>
+                    <div id="merge-file-list-container" class="mb-6 hidden"><h2 class="text-lg font-semibold mb-3 text-slate-800 dark:text-slate-200">Selected Files:</h2><ul id="merge-file-list" class="space-y-2 file-list-scroll pr-2"></ul></div>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button id="merge-btn" disabled class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center">Merge PDFs</button>
+                        <button id="merge-clear-btn" class="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white font-bold py-3 px-6 rounded-lg transition-all duration-300">Clear</button>
+                    </div>
+                    <div id="merge-status-container" class="mt-6 text-center hidden"><div id="merge-loading-indicator" class="flex items-center justify-center mb-4 hidden"><div class="spinner w-8 h-8 border-4 border-slate-200 dark:border-slate-600 rounded-full"></div><p id="merge-status-text" class="ml-3 text-lg font-medium text-slate-600 dark:text-slate-300"></p></div><a id="merge-download-btn" href="#" download="merged.pdf" class="hidden inline-block bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300">Download Merged PDF</a></div>
+                </div>
+
+                <!-- DOCX Converter Panel -->
+                <div id="panel-docx-converter" class="tab-panel hidden">
+                    <div class="mb-6">
+                        <label for="convert-file-input" class="file-input-label cursor-pointer w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center bg-slate-50 dark:bg-slate-700/50 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-300">
+                            <svg class="w-12 h-12 text-slate-400 dark:text-slate-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <p class="font-semibold text-slate-700 dark:text-slate-300">Click to select a DOCX file</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">.docx format only</p>
+                        </label>
+                        <input type="file" id="convert-file-input" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="hidden">
+                    </div>
+                    <div id="convert-file-info" class="mb-6 hidden"><h2 class="text-lg font-semibold mb-3 text-slate-800 dark:text-slate-200">Selected File:</h2><div class="flex items-center justify-between bg-slate-100 dark:bg-slate-700 p-3 rounded-lg"><span id="convert-file-name" class="font-medium truncate"></span></div></div>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button id="convert-btn" disabled class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center">Convert to PDF</button>
+                        <button id="convert-clear-btn" class="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white font-bold py-3 px-6 rounded-lg transition-all duration-300">Clear</button>
+                    </div>
+                    <div id="convert-status-container" class="mt-6 text-center hidden"><div class="flex items-center justify-center"><div id="convert-spinner" class="spinner w-8 h-8 border-4 border-slate-200 dark:border-slate-600 rounded-full hidden"></div><p id="convert-status-text" class="ml-3 text-lg font-medium text-slate-600 dark:text-slate-300"></p></div></div>
+                </div>
+                
+                <!-- Image to PDF Converter Panel -->
+                <div id="panel-image-converter" class="tab-panel hidden">
+                    <div class="mb-6">
+                        <label for="image-file-input" class="file-input-label cursor-pointer w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center bg-slate-50 dark:bg-slate-700/50 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-300">
+                            <svg class="w-12 h-12 text-slate-400 dark:text-slate-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <p class="font-semibold text-slate-700 dark:text-slate-300">Click to select images</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">JPG, PNG formats supported</p>
+                        </label>
+                        <input type="file" id="image-file-input" multiple accept="image/jpeg, image/png" class="hidden">
+                    </div>
+                    <div id="image-file-list-container" class="mb-6 hidden"><h2 class="text-lg font-semibold mb-3 text-slate-800 dark:text-slate-200">Selected Images:</h2><div id="image-preview-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 file-list-scroll pr-2"></div></div>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button id="image-convert-btn" disabled class="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center">Convert to PDF</button>
+                        <button id="image-clear-btn" class="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white font-bold py-3 px-6 rounded-lg transition-all duration-300">Clear</button>
+                    </div>
+                    <div id="image-status-container" class="mt-6 text-center hidden"><div class="flex items-center justify-center"><div id="image-spinner" class="spinner w-8 h-8 border-4 border-slate-200 dark:border-slate-600 rounded-full hidden"></div><p id="image-status-text" class="ml-3 text-lg font-medium text-slate-600 dark:text-slate-300"></p></div></div>
+                </div>
+
+                <!-- PDF to Image Extractor Panel -->
+                <div id="panel-pdf-extractor" class="tab-panel hidden">
+                    <div class="mb-6">
+                        <label for="extractor-file-input" class="file-input-label cursor-pointer w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center bg-slate-50 dark:bg-slate-700/50 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-300">
+                            <svg class="w-12 h-12 text-slate-400 dark:text-slate-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"></path></svg>
+                            <p class="font-semibold text-slate-700 dark:text-slate-300">Click to select a PDF file</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Extract all pages as images</p>
+                        </label>
+                        <input type="file" id="extractor-file-input" accept=".pdf" class="hidden">
+                    </div>
+                    <div id="extractor-preview-container" class="mb-6 hidden">
+                        <h2 class="text-lg font-semibold mb-3 text-slate-800 dark:text-slate-200">Extracted Images:</h2>
+                        <div id="extractor-preview-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 file-list-scroll pr-2"></div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button id="extractor-btn" disabled class="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center">Extract Images</button>
+                        <button id="extractor-download-btn" disabled class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center">Download as ZIP</button>
+                        <button id="extractor-clear-btn" class="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white font-bold py-3 px-6 rounded-lg transition-all duration-300">Clear</button>
+                    </div>
+                    <div id="extractor-status-container" class="mt-6 text-center hidden">
+                        <div class="flex items-center justify-center">
+                            <div id="extractor-spinner" class="spinner w-8 h-8 border-4 border-slate-200 dark:border-slate-600 rounded-full hidden"></div>
+                            <p id="extractor-status-text" class="ml-3 text-lg font-medium text-slate-600 dark:text-slate-300"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden container for rendering DOCX content -->
+    <div id="docx-render-target" class="hidden"></div>
+
+    <!-- Link to external JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

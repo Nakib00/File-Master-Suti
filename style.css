@@ -1,0 +1,70 @@
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Spinner animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    border-top-color: #4f46e5; /* Indigo */
+    animation: spin 1s linear infinite;
+}
+
+/* Active tab style */
+.tab-btn {
+    transition: all 0.3s ease;
+}
+
+.tab-active {
+    color: #4f46e5; /* Indigo-600 */
+    background-color: #e0e7ff; /* Indigo-100 */
+}
+
+.dark .tab-active {
+    color: #a5b4fc; /* Indigo-300 */
+    background-color: rgba(79, 70, 229, 0.2);
+}
+
+/* Drag over style */
+.drag-over {
+    border-color: #4f46e5;
+    background-color: #e0e7ff;
+}
+
+.dark .drag-over {
+    border-color: #a5b4fc;
+    background-color: rgba(79, 70, 229, 0.1);
+}
+
+/* Custom scrollbar for file lists */
+.file-list-scroll {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.file-list-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.file-list-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9; /* Slate-100 */
+}
+
+.dark .file-list-scroll::-webkit-scrollbar-track {
+    background: #1e293b; /* Slate-800 */
+}
+
+.file-list-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* Slate-300 */
+    border-radius: 3px;
+}
+
+.dark .file-list-scroll::-webkit-scrollbar-thumb {
+    background: #475569; /* Slate-600 */
+}
